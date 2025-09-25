@@ -107,7 +107,7 @@
 
         // Create iframe (hidden initially)
         let iframe = document.createElement('iframe');
-        iframe.src = `https://educake.samj.app/?answers=${encodedAnswers}`;
+        iframe.src = `https://educake.pages.dev/?answers=${encodedAnswers}`;
         iframe.style.position = 'absolute';
         iframe.style.top = '10px';
         iframe.style.left = '10px';
