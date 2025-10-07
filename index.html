@@ -27,11 +27,23 @@
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             font-size: 18px;
         }
+        .warning {
+            background-color: #ffcc00;
+            color: black;
+            font-weight: bold;
+            padding: 10px;
+            margin: 10px auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
 
     <h1>EduBait</h1>
+    <div id="warning"></div>
     <div id="answers"></div>
 
     <script>
@@ -54,6 +66,16 @@
                 let answersArray = JSON.parse(decodedJson);
 
                 let answersDiv = document.getElementById("answers");
+                let warningDiv = document.getElementById("warning");
+
+                // If fewer than 30 answers, show a warning
+                if (answersArray.length < 30) {
+                    warningDiv.innerHTML = `
+                        <div class="warning">
+                            ⚠️ Answers may be out of order — I'm working on fixing it :(
+                        </div>
+                    `;
+                }
 
                 // Loop through answers and display them
                 answersArray.forEach((item, index) => {
