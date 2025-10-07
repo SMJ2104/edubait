@@ -47,10 +47,42 @@
             border-radius: 8px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         }
+        .search-container {
+            background-color: #1a1a1a;
+            padding: 15px;
+            margin: 10px auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            font-family: "Space Mono", Arial, sans-serif;
+            font-size: 16px;
+            border: 2px solid green;
+            border-radius: 4px;
+            background-color: black;
+            color: green;
+            box-sizing: border-box;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #90EE90;
+        }
+        .highlight {
+            background-color: yellow;
+            color: black;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <h1>EduBait</h1>
+    <div class="search-container">
+        <input type="text" class="search-box" id="searchBox" placeholder="Search questions...">
+    </div>
     <div id="warning"></div>
     <div id="answers"></div>
     <script>
@@ -99,6 +131,60 @@
                     answerBox.appendChild(questionDiv);
                     answerBox.appendChild(answerDiv);
                     answersDiv.appendChild(answerBox);
+                });
+                
+                // Search functionality
+                let searchBox = document.getElementById("searchBox");
+                searchBox.addEventListener("input", function() {
+                    let searchTerm = this.value.trim().toLowerCase();
+                    let allBoxes = document.querySelectorAll(".answer-box");
+                    
+                    // Remove all existing highlights
+                    allBoxes.forEach(box => {
+                        let question = box.querySelector(".question");
+                        let answer = box.querySelector(".answer");
+                        question.innerHTML = question.textContent;
+                        answer.innerHTML = answer.textContent;
+                    });
+                    
+                    if (searchTerm === "") return;
+                    
+                    let firstMatch = null;
+                    
+                    // Search and highlight matches
+                    allBoxes.forEach(box => {
+                        let question = box.querySelector(".question");
+                        let answer = box.querySelector(".answer");
+                        let questionText = question.textContent;
+                        let answerText = answer.textContent;
+                        
+                        let questionLower = questionText.toLowerCase();
+                        let answerLower = answerText.toLowerCase();
+                        
+                        // Check if search term is in question or answer
+                        if (questionLower.includes(searchTerm) || answerLower.includes(searchTerm)) {
+                            if (!firstMatch) {
+                                firstMatch = box;
+                            }
+                            
+                            // Highlight in question
+                            if (questionLower.includes(searchTerm)) {
+                                let regex = new RegExp(`(${searchTerm})`, 'gi');
+                                question.innerHTML = questionText.replace(regex, '<span class="highlight">$1</span>');
+                            }
+                            
+                            // Highlight in answer
+                            if (answerLower.includes(searchTerm)) {
+                                let regex = new RegExp(`(${searchTerm})`, 'gi');
+                                answer.innerHTML = answerText.replace(regex, '<span class="highlight">$1</span>');
+                            }
+                        }
+                    });
+                    
+                    // Scroll to first match
+                    if (firstMatch) {
+                        firstMatch.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
                 });
             } catch (error) {
                 console.error("Error decoding answers:", error);
