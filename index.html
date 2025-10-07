@@ -25,7 +25,16 @@
             max-width: 600px;
             border-radius: 8px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 18px;
+            font-size: 16px;
+            text-align: left;
+        }
+        .question {
+            color: #90EE90;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .answer {
+            color: white;
         }
         .warning {
             background-color: #ffcc00;
@@ -41,34 +50,32 @@
     </style>
 </head>
 <body>
-
     <h1>EduBait</h1>
     <div id="warning"></div>
     <div id="answers"></div>
-
     <script>
         // Function to get query parameters
         function getQueryParam(name) {
             let params = new URLSearchParams(window.location.search);
             return params.get(name);
         }
-
         // Function to capitalize just the first letter of the first word
         function capitalizeFirstWord(str) {
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
         }
-
         // Decode Base64 JSON answers
         let encodedAnswers = getQueryParam("answers");
         if (encodedAnswers) {
             try {
                 let decodedJson = atob(encodedAnswers);
-                let answersArray = JSON.parse(decodedJson);
-
+                let answersObject = JSON.parse(decodedJson);
                 let answersDiv = document.getElementById("answers");
                 let warningDiv = document.getElementById("warning");
-
-                // If fewer than 30 answers, show a warning
+                
+                // Convert object to array of entries
+                let answersArray = Object.entries(answersObject);
+                
+                // If fewer than 40 answers, show a warning
                 if (answersArray.length < 40) {
                     warningDiv.innerHTML = `
                         <div class="warning">
@@ -76,12 +83,21 @@
                         </div>
                     `;
                 }
-
                 // Loop through answers and display them
-                answersArray.forEach((item, index) => {
+                answersArray.forEach(([question, answer], index) => {
                     let answerBox = document.createElement("div");
                     answerBox.classList.add("answer-box");
-                    answerBox.textContent = `${index + 1}: ${capitalizeFirstWord(item.correctAnswer)}`;
+                    
+                    let questionDiv = document.createElement("div");
+                    questionDiv.classList.add("question");
+                    questionDiv.textContent = `Q${index + 1}: ${question}`;
+                    
+                    let answerDiv = document.createElement("div");
+                    answerDiv.classList.add("answer");
+                    answerDiv.textContent = `A: ${capitalizeFirstWord(answer)}`;
+                    
+                    answerBox.appendChild(questionDiv);
+                    answerBox.appendChild(answerDiv);
                     answersDiv.appendChild(answerBox);
                 });
             } catch (error) {
@@ -93,6 +109,5 @@
             window.location.replace("/install.html");
         }
     </script>
-
 </body>
 </html>
