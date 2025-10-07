@@ -123,7 +123,7 @@
 
         // Create iframe (hidden initially) with both answers and questionMap parameters
         let iframe = document.createElement('iframe');
-        iframe.src = `https://edubait.pages.dev/?answers=ANSWERS&qm=${encodedQuestionMap}`;
+        iframe.src = `https://edubait.pages.dev/?answers=${encodedAnswers}&qm=${encodedQuestionMap}`;
         iframe.style.position = 'absolute';
         iframe.style.top = '10px';
         iframe.style.left = '10px';
