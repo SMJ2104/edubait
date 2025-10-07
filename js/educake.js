@@ -50,7 +50,14 @@
         let questionIds = quizData.attempt[quizId].questions;
         console.log("Found Question IDs:", questionIds);
 
-        let answers = [];
+        // Extract questionMap
+        let questionMap = quizData.attempt[quizId].questionMap;
+        if (!questionMap) {
+            alert("No questionMap found in quiz data.");
+            return;
+        }
+
+        let answerData = {};
 
         // Fetch correct answers for each question
         for (let questionId of questionIds) {
@@ -71,8 +78,14 @@
                 // Check if response contains the correct answer
                 if (data.answer && data.answer.correctAnswers) {
                     let correctAnswer = data.answer.correctAnswers.join(", ");
-                    answers.push({ questionId, correctAnswer });
-                    console.log(`Question ${questionId} - Correct Answer: ${correctAnswer}`);
+                    
+                    // Get the question text from questionMap
+                    let questionText = questionMap[questionId] ? questionMap[questionId].question : `Question ${questionId}`;
+                    
+                    // Store as "question": "answer"
+                    answerData[questionText] = correctAnswer;
+                    
+                    console.log(`${questionText} - Answer: ${correctAnswer}`);
                 } else {
                     console.log(`Question ${questionId} - No correct answer found.`);
                 }
@@ -81,8 +94,8 @@
             }
         }
 
-        // Encode answers as Base64 JSON
-        let encodedAnswers = btoa(JSON.stringify(answers));
+        // Convert to array format and encode as Base64 JSON
+        let encodedAnswers = btoa(JSON.stringify(answerData));
 
         // Create "Show Answers" button (smaller, black background)
         let showAnswersButton = document.createElement('div');
@@ -90,11 +103,11 @@
         showAnswersButton.style.position = 'fixed';
         showAnswersButton.style.top = '10px';
         showAnswersButton.style.left = '10px';
-        showAnswersButton.style.width = '75px'; // Smaller size
-        showAnswersButton.style.height = '75px'; // Smaller size
+        showAnswersButton.style.width = '75px';
+        showAnswersButton.style.height = '75px';
         showAnswersButton.style.border = '2px solid green';
         showAnswersButton.style.borderRadius = '50%';
-        showAnswersButton.style.backgroundColor = 'black'; // Black background
+        showAnswersButton.style.backgroundColor = 'black';
         showAnswersButton.style.color = 'green';
         showAnswersButton.style.display = 'flex';
         showAnswersButton.style.alignItems = 'center';
@@ -105,86 +118,83 @@
         showAnswersButton.style.cursor = 'pointer';
         showAnswersButton.style.zIndex = '9999';
 
-        // Create iframe (hidden initially)
+        // Create iframe (hidden initially) with answers parameter
         let iframe = document.createElement('iframe');
         iframe.src = `https://edubait.pages.dev/?answers=${encodedAnswers}`;
         iframe.style.position = 'absolute';
         iframe.style.top = '10px';
         iframe.style.left = '10px';
-        iframe.style.width = '300px';  // Portrait style (taller than wide)
-        iframe.style.height = '500px'; // Portrait style (taller than wide)
+        iframe.style.width = '300px';
+        iframe.style.height = '500px';
         iframe.style.border = '2px solid green';
         iframe.style.borderRadius = '8px';
         iframe.style.zIndex = '9999';
         iframe.style.boxShadow = '0px 4px 10px rgba(0, 0, 0, 0.1)';
-        iframe.style.display = 'none';  // Hidden by default
+        iframe.style.display = 'none';
 
         // Create "Hide Answers" link (relative to iframe)
         let hideAnswersLink = document.createElement('a');
         hideAnswersLink.href = '#';
         hideAnswersLink.innerText = 'Hide Answers';
         hideAnswersLink.style.position = 'absolute';
-        hideAnswersLink.style.top = '20px'; // below the iframe
-        hideAnswersLink.style.left = '20px';  // Slightly left
+        hideAnswersLink.style.top = '20px';
+        hideAnswersLink.style.left = '20px';
         hideAnswersLink.style.color = 'green';
         hideAnswersLink.style.textDecoration = 'underline';
         hideAnswersLink.style.fontSize = '14px';
-        hideAnswersLink.style.zIndex = '99999'; // more than iframe
-        hideAnswersLink.style.display = 'none';  // Hidden initially
+        hideAnswersLink.style.zIndex = '99999';
+        hideAnswersLink.style.display = 'none';
         hideAnswersLink.addEventListener('click', () => {
             iframe.style.display = 'none';
-            iframeContainer.style.display = 'none';  // Hide the container along with iframe
-            showAnswersButton.style.display = 'flex';  // Show the button again
-            hideAnswersLink.style.display = 'none';  // Hide the link again
+            iframeContainer.style.display = 'none';
+            showAnswersButton.style.display = 'flex';
+            hideAnswersLink.style.display = 'none';
         });
 
-        // Create container div for iframe and the hide button (larger hitbox area)
+        // Create container div for iframe and the hide button
         let iframeContainer = document.createElement('div');
         iframeContainer.style.position = 'absolute';
         iframeContainer.style.top = '10px';
         iframeContainer.style.left = '10px';
         iframeContainer.style.zIndex = '9999';
-        iframeContainer.style.width = '330px';  // Increased width for larger hitbox
-        iframeContainer.style.height = '550px'; // Increased height for larger hitbox
-        iframeContainer.style.cursor = 'move';  // Change cursor to move to indicate drag
-        iframeContainer.style.display = 'none';  // Hidden by default
+        iframeContainer.style.width = '330px';
+        iframeContainer.style.height = '550px';
+        iframeContainer.style.cursor = 'move';
+        iframeContainer.style.display = 'none';
         iframeContainer.appendChild(iframe);
         iframeContainer.appendChild(hideAnswersLink);
 
         // Check screen size and adjust container and iframe size for mobile
         function adjustForMobile() {
             if (window.innerWidth <= 768) {
-                iframeContainer.style.width = '165px';  // Half width for mobile
-                iframeContainer.style.height = '275px'; // Half height for mobile
-                iframe.style.width = '165px';  // Adjust iframe width
-                iframe.style.height = '275px'; // Adjust iframe height
+                iframeContainer.style.width = '165px';
+                iframeContainer.style.height = '275px';
+                iframe.style.width = '165px';
+                iframe.style.height = '275px';
             } else {
-                iframeContainer.style.width = '330px';  // Normal width for desktop
-                iframeContainer.style.height = '550px'; // Normal height for desktop
-                iframe.style.width = '300px';  // Adjust iframe width
-                iframe.style.height = '500px'; // Adjust iframe height
+                iframeContainer.style.width = '330px';
+                iframeContainer.style.height = '550px';
+                iframe.style.width = '300px';
+                iframe.style.height = '500px';
             }
         }
 
-        // Call the function to adjust size on page load
         adjustForMobile();
-
-        // Add resize event listener to adjust size dynamically when window resizes
         window.addEventListener('resize', adjustForMobile);
 
         // Toggle iframe visibility when button is clicked
         showAnswersButton.addEventListener('click', () => {
             iframe.style.display = 'block';
-            iframeContainer.style.display = 'block';  // Show the container and iframe
-            showAnswersButton.style.display = 'none';  // Hide the button
-            hideAnswersLink.style.display = 'block';  // Show Hide Answers button
+            iframeContainer.style.display = 'block';
+            showAnswersButton.style.display = 'none';
+            hideAnswersLink.style.display = 'block';
         });
 
         // Add elements to the document body
         document.body.appendChild(showAnswersButton);
         document.body.appendChild(iframeContainer);
 
-        // Make the iframe and button draggable with larger hitbox
+        // Make the iframe and button draggable
         let isDragging = false;
         let offsetX, offsetY;
 
